@@ -1,26 +1,105 @@
+
 <!DOCTYPE html>
-<html>
-<head><meta name="viewport" content="width=device-width"></head>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login | QUEEN APP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family:Arial;
+  background:#f4f6f8;
+  margin:0;
+  padding:0;
+}
+.box{
+  max-width:360px;
+  margin:100px auto;
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+}
+h2{
+  text-align:center;
+  margin-top:0;
+}
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  font-size:15px;
+}
+button{
+  background:#0d6efd;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+}
+.link{
+  text-align:center;
+  margin-top:10px;
+}
+a{
+  text-decoration:none;
+  color:#0d6efd;
+}
+</style>
+</head>
+
 <body>
-<h2>Login</h2>
-<input id="email" placeholder="Email">
-<input id="pass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-<p onclick="location.href='signup.html'">Don't have account? Signup</p>
+
+<div class="box">
+  <h2>Login</h2>
+
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <div class="link">
+    Don't have an account?
+    <a href="signup.html">Signup</a>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword }
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-initializeApp(firebaseConfig);
-const auth=getAuth();
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "PROJECT.firebaseapp.com",
+  projectId: "PROJECT_ID",
+  appId: "YOUR_APP_ID"
+};
 
-window.login=()=>{
- signInWithEmailAndPassword(auth,email.value,pass.value)
- .then(()=>location.href="home.html")
- .catch(e=>alert(e.message));
-}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* 🔐 LOGIN */
+window.login = ()=>{
+  if(!email.value || !password.value){
+    alert("Fill all fields");
+    return;
+  }
+
+  signInWithEmailAndPassword(auth,email.value,password.value)
+  .then(()=>{
+    location.href="pages/home.html";
+  })
+  .catch(e=>alert(e.message));
+};
+
+/* 🔁 AUTO LOGIN */
+onAuthStateChanged(auth,(u)=>{
+  if(u){
+    location.href="pages/home.html";
+  }
+});
 </script>
+
 </body>
 </html>
