@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mine | QUEEN APP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f6f8;
+}
+
+/* HEADER */
+.header{
+  background:#0d6efd;
+  color:#fff;
+  padding:14px;
+  text-align:center;
+  font-weight:bold;
+}
+
+/* PROFILE */
+.profile{
+  background:#fff;
+  margin:15px;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+}
+.profile img{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  object-fit:cover;
+}
+.profile h3{
+  margin:10px 0 5px;
+}
+.profile p{
+  margin:4px 0;
+  font-size:14px;
+  color:#555;
+}
+
+/* MENU */
+.menu{
+  margin:15px;
+}
+.menu a, .menu button{
+  display:block;
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  background:#fff;
+  border-radius:8px;
+  border:none;
+  text-decoration:none;
+  color:#000;
+  font-size:15px;
+  text-align:left;
+}
+
+/* BOTTOM */
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  border-top:1px solid #ccc;
+  display:flex;
+}
+.bottom a{
+  flex:1;
+  text-align:center;
+  padding:10px 0;
+  text-decoration:none;
+  color:#000;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">My Profile</div>
+
+<!-- PROFILE -->
+<div class="profile">
+  <img id="photo" src="../assets/user.png">
+  <h3 id="name">User Name</h3>
+  <p id="email">email@email.com</p>
+  <p>User ID: <b id="uid">----</b></p>
+  <p>Balance: ৳<b id="balance">0</b></p>
+</div>
+
+<!-- MENU -->
+<div class="menu">
+  <a href="payment.html">💳 Deposit / Withdraw</a>
+  <a href="#">📄 Transaction History</a>
+  <button onclick="logout()">🚪 Logout</button>
+</div>
+
+<!-- BOTTOM -->
+<div class="bottom">
+  <a href="home.html">Home</a>
+  <a href="massage.html">Message</a>
+  <a href="mine.html">Mine</a>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { auth, db } from "../js/firebase.js";
+import { onAuthStateChanged, signOut }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, getDoc }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* AUTH CHECK */
+onAuthStateChanged(auth, async(user)=>{
+  if(!user){
+    location.href="../login.html";
+    return;
+  }
+
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(snap.exists()){
+    name.innerText = snap.data().name;
+    email.innerText = snap.data().email;
+    uid.innerText = snap.data().userId;
+    balance.innerText = snap.data().balance ?? 0;
+    if(snap.data().photo){
+      photo.src = snap.data().photo;
+    }
+  }
+});
+
+/* LOGOUT */
+window.logout = function(){
+  signOut(auth).then(()=>{
+    location.href="../login.html";
+  });
+}
+</script>
+
+</body>
+</html>
