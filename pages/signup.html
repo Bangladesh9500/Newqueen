@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home | QUEEN APP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f6f8;
+}
+
+/* HEADER */
+.header{
+  background:#0d6efd;
+  color:#fff;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.header .left{
+  font-size:16px;
+  font-weight:bold;
+}
+.header .center{
+  font-size:14px;
+}
+.header .right{
+  font-size:20px;
+}
+
+/* SLIDER */
+.slider{
+  width:100%;
+  height:100px;
+  overflow:hidden;
+}
+.slider img{
+  width:100%;
+  height:100px;
+  object-fit:cover;
+  display:none;
+}
+.slider img.active{
+  display:block;
+}
+
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:10px;
+}
+.card{
+  background:#fff;
+  border-radius:8px;
+  overflow:hidden;
+  text-align:center;
+  text-decoration:none;
+  color:#000;
+}
+.card img{
+  width:100%;
+  height:80px;
+  object-fit:cover;
+}
+.card span{
+  display:block;
+  padding:5px;
+  font-size:13px;
+}
+
+/* BOTTOM MENU */
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  border-top:1px solid #ccc;
+  display:flex;
+}
+.bottom a{
+  flex:1;
+  text-align:center;
+  padding:10px 0;
+  text-decoration:none;
+  color:#000;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="left" id="username">User</div>
+  <div class="center">Balance: ৳<span id="balance">0</span></div>
+  <div class="right">🔔</div>
+</div>
+
+<!-- SLIDER -->
+<div class="slider">
+  <img src="../assets/slider/s1.jpg" class="active">
+  <img src="../assets/slider/s2.jpg">
+  <img src="../assets/slider/s3.jpg">
+</div>
+
+<!-- GAME CARDS -->
+<div class="cards" id="cards">
+  <!-- Cards auto add -->
+</div>
+
+<!-- BOTTOM MENU -->
+<div class="bottom">
+  <a href="home.html">Home</a>
+  <a href="massage.html">Message</a>
+  <a href="mine.html">Mine</a>
+</div>
+
+<script type="module">
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, getDocs }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "PROJECT.firebaseapp.com",
+  projectId: "PROJECT_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* AUTH CHECK */
+onAuthStateChanged(auth, async(u)=>{
+  if(!u){
+    location.href="../login.html";
+    return;
+  }
+
+  const snap = await getDoc(doc(db,"users",u.uid));
+  username.innerText = snap.data().name;
+  balance.innerText = snap.data().balance ?? 0;
+});
+
+/* LOAD GAMES */
+const cards = document.getElementById("cards");
+const games = await getDocs(collection(db,"games"));
+
+games.forEach(g=>{
+  if(g.data().status === "approved"){
+    cards.innerHTML += `
+      <a class="card" href="${g.data().link}">
+        <img src="${g.data().image}">
+        <span>${g.data().name}</span>
+      </a>
+    `;
+  }
+});
+
+/* SLIDER AUTO */
+let i=0;
+setInterval(()=>{
+  const imgs=document.querySelectorAll(".slider img");
+  imgs.forEach(img=>img.classList.remove("active"));
+  i=(i+1)%imgs.length;
+  imgs[i].classList.add("active");
+},3000);
+</script>
+
+</body>
+</html>
