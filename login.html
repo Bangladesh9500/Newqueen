@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="viewport" content="width=device-width"></head>
+<body>
+<h2>Login</h2>
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p onclick="location.href='signup.html'">Don't have account? Signup</p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+initializeApp(firebaseConfig);
+const auth=getAuth();
+
+window.login=()=>{
+ signInWithEmailAndPassword(auth,email.value,pass.value)
+ .then(()=>location.href="home.html")
+ .catch(e=>alert(e.message));
+}
+</script>
+</body>
+</html>

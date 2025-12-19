@@ -1,0 +1,59 @@
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, getDocs } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+initializeApp(firebaseConfig);
+const auth=getAuth(), db=getFirestore();
+
+const ADMIN_WALLET = "TX9xxxxxxxxxxxxxxxxxxxxx";
+
+let user;
+onAuthStateChanged(auth,u=>{
+ if(!u) location.href="login.html";
+ user=u;
+});
+
+window.submitPay = async()=>{
+ const tx = txid.value.trim();
+
+ // 🔥 DUPLICATE CHECK
+ const q=query(collection(db,"payments"),where("txid","==",tx));
+ const snap=await getDocs(q);
+ if(!snap.empty){
+  alert("TXID already used");
+  return;
+ }
+
+ // 🔥 VERIFY FROM TRONSCAN
+ const res = await fetch(
+  `https://apilist.tronscan.org/api/transaction-info?hash=${tx}`
+ );
+ const data = await res.json();
+
+ if(!data.contractRet || data.contractRet!="SUCCESS"){
+  alert("Invalid TXID");
+  return;
+ }
+
+ if(data.toAddress != ADMIN_WALLET){
+  alert("Wrong address");
+  return;
+ }
+
+ const usdt = data.tokenTransferInfo.amount / 1e6;
+
+ await addDoc(collection(db,"payments"),{
+  uid:user.uid,
+  amount:usdt,
+  txid:tx,
+  status:"approved",
+  time:Date.now()
+ });
+
+ alert("Deposit success");
+ location.href="home.html";
+};
+</script>

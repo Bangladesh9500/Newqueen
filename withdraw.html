@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Withdraw USDT</h2>
+
+<input id="amount" type="number" placeholder="Amount">
+<input id="wallet" placeholder="Your USDT Wallet">
+<button onclick="withdraw()">Submit</button>
+
+<script type="module">
+import { initializeApp } from 
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, doc, getDoc, updateDoc }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+initializeApp(firebaseConfig);
+const auth=getAuth(), db=getFirestore();
+let user;
+
+onAuthStateChanged(auth,u=>user=u);
+
+window.withdraw = async()=>{
+ const uref=doc(db,"users",user.uid);
+ const usnap=await getDoc(uref);
+ let bal=usnap.data().balance ?? 0;
+
+ if(bal < amount.value){
+  alert("Not enough balance");
+  return;
+ }
+
+ await updateDoc(uref,{ balance: bal - amount.value });
+
+ await addDoc(collection(db,"withdraws"),{
+  uid:user.uid,
+  amount:Number(amount.value),
+  wallet:wallet.value,
+  status:"pending",
+  time:Date.now()
+ });
+
+ alert("Withdraw request sent");
+ location.href="home.html";
+};
+</script>
+</body>
+</html>

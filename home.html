@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f6f8;
+  padding-bottom:60px;
+}
+
+/* HEADER */
+header{
+  background:#0d6efd;
+  color:#fff;
+  padding:10px;
+  display:flex;
+  align-items:center;
+}
+.header-left{
+  width:40px;
+}
+.header-center{
+  flex:1;
+  text-align:center;
+  font-size:14px;
+}
+.buy{
+  background:#ffc107;
+  color:#000;
+  padding:3px 10px;
+  border-radius:20px;
+  margin-left:6px;
+  cursor:pointer;
+}
+.header-right{
+  width:40px;
+  text-align:right;
+}
+
+/* SLIDER */
+.slider img{
+  width:100%;
+  height:100px;
+  object-fit:cover;
+}
+
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:10px;
+}
+.card{
+  background:#fff;
+  border-radius:6px;
+  text-align:center;
+  font-size:13px;
+}
+.card img{
+  width:100%;
+  height:80px;
+  object-fit:cover;
+  border-radius:6px 6px 0 0;
+}
+.card span{
+  display:block;
+  padding:5px;
+}
+
+/* BOTTOM MENU */
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#fff;
+  border-top:1px solid #ccc;
+  display:flex;
+}
+.bottom a{
+  flex:1;
+  text-align:center;
+  padding:10px 0;
+  text-decoration:none;
+  color:#333;
+  font-size:14px;
+}
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">☰</div>
+
+  <div class="header-center">
+    Balance: ৳<span id="balance">0</span>
+    <span class="buy" onclick="buy()">Buy</span>
+  </div>
+
+  <div class="header-right">🔔</div>
+</header>
+
+<!-- SLIDER -->
+<div class="slider">
+  <img id="slide" src="assets/slider/s1.jpg">
+</div>
+
+<!-- CARDS -->
+<div class="cards">
+  <a href="card1.html" class="card"><img src="assets/cards/c1.jpg"><span>Card 1</span></a>
+  <a href="card2.html" class="card"><img src="assets/cards/c2.jpg"><span>Card 2</span></a>
+  <a href="card3.html" class="card"><img src="assets/cards/c3.jpg"><span>Card 3</span></a>
+  <a href="card4.html" class="card"><img src="assets/cards/c4.jpg"><span>Card 4</span></a>
+  <a href="card5.html" class="card"><img src="assets/cards/c5.jpg"><span>Card 5</span></a>
+  <a href="card6.html" class="card"><img src="assets/cards/c6.jpg"><span>Card 6</span></a>
+  <a href="card7.html" class="card"><img src="assets/cards/c7.jpg"><span>Card 7</span></a>
+  <a href="card8.html" class="card"><img src="assets/cards/c8.jpg"><span>Card 8</span></a>
+  <a href="card9.html" class="card"><img src="assets/cards/c9.jpg"><span>Card 9</span></a>
+  <a href="card10.html" class="card"><img src="assets/cards/c10.jpg"><span>Card 10</span></a>
+  <a href="card11.html" class="card"><img src="assets/cards/c11.jpg"><span>Card 11</span></a>
+  <a href="card12.html" class="card"><img src="assets/cards/c12.jpg"><span>Card 12</span></a>
+</div>
+
+<!-- BOTTOM MENU -->
+<div class="bottom">
+  <a href="home.html">🏠 Home</a>
+  <a href="message.html">💬 Message</a>
+  <a href="profile.html">👤 Mine</a>
+</div>
+
+<!-- SLIDER SCRIPT -->
+<script>
+const slides=[
+  "assets/slider/s1.jpg",
+  "assets/slider/s2.jpg",
+  "assets/slider/s3.jpg"
+];
+let i=0;
+setInterval(()=>{
+  i=(i+1)%slides.length;
+  document.getElementById("slide").src=slides[i];
+},3000);
+</script>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  /* YOUR FIREBASE CONFIG */
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let userRef;
+
+onAuthStateChanged(auth, async(user)=>{
+  if(!user){
+    location.href="login.html";
+    return;
+  }
+  userRef = doc(db,"users",user.uid);
+  const snap = await getDoc(userRef);
+  document.getElementById("balance").innerText = snap.data().balance ?? 0;
+});
+
+window.buy = async()=>{
+  const snap = await getDoc(userRef);
+  let bal = snap.data().balance ?? 0;
+
+  if(bal < 10){
+    alert("Not enough balance");
+    return;
+  }
+
+  await updateDoc(userRef,{ balance: bal - 10 });
+  document.getElementById("balance").innerText = bal - 10;
+};
+</script>
+
+</body>
+</html>

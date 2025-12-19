@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Signup</h2>
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
+<select id="country">
+<option>Bangladesh</option><option>India</option><option>USA</option>
+</select>
+<button onclick="signup()">Signup</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+initializeApp(firebaseConfig);
+const auth=getAuth(), db=getFirestore();
+
+function uid(){ return Math.floor(10000000+Math.random()*90000000); }
+
+window.signup=async()=>{
+ const u=await createUserWithEmailAndPassword(auth,email.value,pass.value);
+ await setDoc(doc(db,"users",u.user.uid),{
+  name:name.value,
+  email:email.value,
+  country:country.value,
+  userId:uid(),
+  balance:100
+ });
+ location.href="home.html";
+}
+</script>
+</body>
+</html>
