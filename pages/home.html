@@ -23,7 +23,6 @@ body{
   justify-content:space-between;
 }
 .header .left{
-  font-size:16px;
   font-weight:bold;
 }
 .header .center{
@@ -91,7 +90,6 @@ body{
   padding:10px 0;
   text-decoration:none;
   color:#000;
-  font-size:14px;
 }
 </style>
 </head>
@@ -113,9 +111,7 @@ body{
 </div>
 
 <!-- GAME CARDS -->
-<div class="cards" id="cards">
-  <!-- Cards auto add -->
-</div>
+<div class="cards" id="cards"></div>
 
 <!-- BOTTOM MENU -->
 <div class="bottom">
@@ -124,39 +120,29 @@ body{
   <a href="mine.html">Mine</a>
 </div>
 
+<!-- FIREBASE + LOGIC -->
 <script type="module">
-import { initializeApp } from
-"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, getDocs }
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-/* FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "PROJECT.firebaseapp.com",
-  projectId: "PROJECT_ID",
-  appId: "YOUR_APP_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+import { auth, db } from "../js/firebase.js";
+import { onAuthStateChanged } from
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, getDoc, collection, getDocs } from
+"https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* AUTH CHECK */
-onAuthStateChanged(auth, async(u)=>{
-  if(!u){
+onAuthStateChanged(auth, async(user)=>{
+  if(!user){
     location.href="../login.html";
     return;
   }
 
-  const snap = await getDoc(doc(db,"users",u.uid));
-  username.innerText = snap.data().name;
-  balance.innerText = snap.data().balance ?? 0;
+  const snap = await getDoc(doc(db,"users",user.uid));
+  if(snap.exists()){
+    username.innerText = snap.data().name;
+    balance.innerText = snap.data().balance ?? 0;
+  }
 });
 
-/* LOAD GAMES */
+/* LOAD APPROVED GAMES */
 const cards = document.getElementById("cards");
 const games = await getDocs(collection(db,"games"));
 
@@ -165,13 +151,13 @@ games.forEach(g=>{
     cards.innerHTML += `
       <a class="card" href="${g.data().link}">
         <img src="${g.data().image}">
-        <span>${g.data().name}</span>
+        <span>${g.data().name} - ৳${g.data().price ?? ''}</span>
       </a>
     `;
   }
 });
 
-/* SLIDER AUTO */
+/* SLIDER AUTO CHANGE */
 let i=0;
 setInterval(()=>{
   const imgs=document.querySelectorAll(".slider img");
