@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+<style>
+body{font-family:Arial}
+.card{border:1px solid #ccc;padding:10px;margin:10px}
+</style>
+</head>
+<body>
+
+<h2>Pending Games</h2>
+<div id="list"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs, updateDoc, doc } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({/* CONFIG */});
+const db = getFirestore(app);
+
+const q = await getDocs(collection(db,"games"));
+q.forEach(d=>{
+  if(d.data().status=="pending"){
+    list.innerHTML += `
+    <div class="card">
+      <b>${d.data().name}</b><br>
+      <button onclick="approve('${d.id}')">Approve</button>
+    </div>`;
+  }
+});
+
+window.approve = async(id)=>{
+  await updateDoc(doc(db,"games",id),{status:"approved"});
+  location.reload();
+};
+</script>
+
+</body>
+</html>
